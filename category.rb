@@ -18,6 +18,22 @@ module Jekyll
     end
   end
 
+  class CategoryFeed < Page
+    def initialize(site, base, dir, category)
+      @site = site
+      @base = base
+      @dir = dir
+      @name = 'atom.xml'
+
+      self.process(@name)
+      self.read_yaml(File.join(base, '_layouts'), 'category_feed.xml')
+      self.data['category'] = category
+
+      category_title_prefix = site.config['category_title_prefix'] || 'Category: '
+      self.data['title'] = "#{category_title_prefix}#{category}"
+    end
+  end
+
   class CategoryList < Page
     def initialize(site,  base, dir, categories)
       @site = site
@@ -42,6 +58,13 @@ module Jekyll
         end
       end
 
+      if site.layouts.key? 'category_feed'
+        dir = site.config['category_dir'] || 'categories'
+        site.categories.keys.each do |category|
+          write_category_feed(site, File.join(dir, category.gsub(/\s/, "-").gsub(/[^\w-]/, '').downcase), category)
+        end
+      end
+
       if site.layouts.key? 'category_list'
         dir = site.config['category_dir'] || 'categories'
         write_category_list(site, dir, site.categories.keys.sort)
@@ -50,6 +73,13 @@ module Jekyll
 
     def write_category_index(site, dir, category)
       index = CategoryIndex.new(site, site.source, dir, category)
+      index.render(site.layouts, site.site_payload)
+      index.write(site.dest)
+      site.static_files << index
+    end
+
+    def write_category_feed(site, dir, category)
+      index = CategoryFeed.new(site, site.source, dir, category)
       index.render(site.layouts, site.site_payload)
       index.write(site.dest)
       site.static_files << index
