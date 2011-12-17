@@ -54,8 +54,15 @@ module Jekyll
     end
 
     def markdownify(input)
-      RDiscount.new(input).to_html
+      Maruku.new(input).to_html
     end
 
+    def preview(text, delimiter = '<!-- break -->')
+      if text.index(delimiter) != nil
+        text.split(delimiter)[0]
+      else
+        markdownify(strip_html(truncatewords(text, 20)))
+      end
+    end
   end
 end
