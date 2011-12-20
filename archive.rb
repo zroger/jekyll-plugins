@@ -17,6 +17,10 @@ module Jekyll
       self.data['year'] = year.to_i
       month and self.data['month'] = month.to_i
       day and self.data['day'] = day.to_i
+      
+      self.data['categories'] = site.categories.keys.sort
+      
+      self.data['months'] = self.collate_by_month(site)
     end
 
     def collate(site)
@@ -32,6 +36,18 @@ module Jekyll
       return collated_posts
     end
 
+    def collate_by_month(site)
+      collated_posts = {}
+      site.posts.reverse.each do |post|
+        y, m, d = post.date.year, post.date.month, post.date.day
+
+        key = "#{y}/#{m}"
+        collated_posts[ key ] = {} unless collated_posts.key? key
+        collated_posts[ key ].push(post) unless collated_posts[ key ].include?(post)
+      end
+      return collated_posts
+    end
+
   end
 
   class ArchiveGenerator < Generator
@@ -43,6 +59,7 @@ module Jekyll
       self.collated_posts = {}
       collate(site)
 
+      write_archive_index(site, 'archives', 'archive_index') if site.layouts.key? 'archive_index'
       self.collated_posts.keys.each do |y|
         write_archive_index(site, y.to_s, 'archive_yearly') if site.layouts.key? 'archive_yearly'
         self.collated_posts[ y ].keys.each do |m|
