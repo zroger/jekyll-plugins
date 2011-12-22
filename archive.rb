@@ -20,7 +20,8 @@ module Jekyll
       
       self.data['categories'] = site.categories.keys.sort
       
-      self.data['months'] = self.collate_by_month(site)
+      self.data['posts_by_month'] = self.collate_by_month(site)
+      self.data['post_counts_by_month'] = self.post_counts_by_month(site)
     end
 
     def collate(site)
@@ -35,17 +36,27 @@ module Jekyll
       end
       return collated_posts
     end
-
+    
     def collate_by_month(site)
       collated_posts = {}
       site.posts.reverse.each do |post|
-        y, m, d = post.date.year, post.date.month, post.date.day
-
-        key = "#{y}/#{m}"
-        collated_posts[ key ] = {} unless collated_posts.key? key
+        key = "#{post.date.year}-#{post.date.month}"
+        collated_posts[ key ] = [] unless collated_posts.key? key
         collated_posts[ key ].push(post) unless collated_posts[ key ].include?(post)
       end
       return collated_posts
+    end
+    
+    def post_counts_by_month(site) 
+      collated_posts = self.collate_by_month(site)
+      counts = []
+      collated_posts.each_pair do |key, posts|
+        data = {}
+        data["date"] = posts.first.date
+        data["count"] = posts.size
+        counts.push(data)
+      end
+      return counts
     end
 
   end
