@@ -28,9 +28,9 @@ module Jekyll
     def render(context)
       output = super
       if @by.nil?
-        '<blockquote>' + output.join + '</blockquote>'
+        '<blockquote>' + output + '</blockquote>'
       else
-        '<blockquote>' + output.join + '<br />' + @by + '</blockquote>'
+        '<blockquote>' + output + '<br />' + @by + '</blockquote>'
       end
     end
   end
@@ -61,9 +61,9 @@ module Jekyll
     def render(context)
       output = super
       if @by.nil?
-        '<blockquote class="pullquote">' + output.join + '</blockquote>'
+        '<blockquote class="pullquote">' + output + '</blockquote>'
       else
-        '<blockquote class="pullquote">' + output.join + '<br />' + @by + '</blockquote>'
+        '<blockquote class="pullquote">' + output + '<br />' + @by + '</blockquote>'
       end
     end
   end
